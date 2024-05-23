@@ -1,0 +1,377 @@
+﻿<div class="row">
+    <h4 class="text-center">Patient Information</h4>
+    <div class="col-md-2"></div>
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body">
+                <form id="patientForm">
+                    <div class="form-group row my-3">
+                        <label for="patientName" class="col-sm-2 col-form-label">Patient Name<sup style="color:red">*</sup></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="patientName" autocomplete="off" placeholder="" required />
+                        </div>
+                    </div>
+                    <div class="form-group row my-3">
+                        <label for="diseasesName" class="col-sm-2 col-form-label">Diseases Name<sup style="color:red">*</sup></label>
+                        <div class="col-sm-10">
+                            <select type="text" class="form-control" id="diseasesId" placeholder="" required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row my-3">
+                        <label for="epilepsy" class="col-sm-2 col-form-label">Epilepsy<sup style="color:red">*</sup></label>
+                        <div class="col-sm-10">
+                            <select type="text" class="form-control" id="epilepsy" placeholder="" required>
+                                <option value="">Select...</option>
+                                <option value="Myoclonicepilepsy">Myoclonicepilepsy</option>
+                                <option value="AbsenceSeizures">AbsenceSeizures</option>
+                                <option value="ComplexSeizure">ComplexSeizure</option>
+                                <option value="GeneralizedEpilepsy">GeneralizedEpilepsy</option>
+                                <option value="EpilepsySyndromes">EpilepsySyndromes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row my-3">
+                        <label for="otherNcd" class="col-sm-2 col-form-label">Other NCD</label>
+                        <div class="col-sm-4">
+                            <div class="card" style="padding-left: 10px;padding-top:5px;overflow-y: scroll;max-height: 139px;min-height:130px">
+                                <ul id="ncdList">
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="row my-3 text-center">
+                                <button type="button" class="btn btn-success" id="btnAdd">Add ></button>
+                            </div>
+                            <div class="row my-3">
+                                <button type="button" class="btn btn-danger" id="btnRemove"><span><</span> Remove</button>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card" style="padding-left: 10px;padding-top:5px;overflow-y: scroll;max-height: 139px;min-height:130px">
+                                <ul id="ncdListSelected">
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row my-3">
+                        <label for="allergies" class="col-sm-2 col-form-label">Allergies<sup style="color:red">*</sup></label>
+                        <div class="col-sm-4">
+                            <div class="card" style="padding-left: 10px;padding-top:5px;overflow-y: scroll;max-height: 139px;min-height:130px">
+                                <ul id="allergyList">
+                                   
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="row my-3 text-center">
+                                <button type="button" class="btn btn-success" id="btnAddAllergy">Add <span>></span></button>
+                            </div>
+                            <div class="row my-3">
+                                <button type="button" class="btn btn-danger" id="btnRemoveAllergy"><span><</span> Remove</button>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="card" style="padding-left: 10px;padding-top:5px;overflow-y: scroll;max-height: 139px;min-height:130px">
+                                <ul id="allergyListSelected">
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-md-6">
+
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <button type="button" id="savePatient" class="btn btn-success"><b>Save</b></button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2"></div>
+
+    <div class="row my-3">
+        <div calss="card">
+            <div class="card-body">
+                <table id="patientTable" class="table table-responsive table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th>Name</th>
+                            <th>Disease</th>
+                            <th>Epilepsy</th>
+                            <th>NCDS</th>
+                            <th>Allergies</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    
+</style>
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function(){
+            getDisease();
+            getNcds();
+            getAllergies();
+            getPatient();
+        })
+        function getDisease(){
+            return $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/DropDown/GetDisease',
+                dataType: "json",
+                type: 'GET',
+                success: function (res) {
+                    $("#diseasesId").empty();
+                    let option = `<option value="">Select...</option>`
+                    $.each(res, function (key, val) {
+                        option += `<option value="${val.id}">${val.name}</option>`
+                    });
+                    $("#diseasesId").append(option);
+                }
+            });
+        }
+        function getNcds(){
+            return $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/DropDown/GetNcds',
+                dataType: "json",
+                type: 'GET',
+                success: function (res) {
+                    $("#ncdList").empty();
+                    let list = ``
+                    $.each(res, function (key, val) {
+                        list += `<li>
+                                    <div class="form-check">
+                                        <input class="form-check-input ncdCheckbox" type="checkbox" value="" id="${val.id + "ncd"}" data-id="${val.id}">
+                                        <label class="form-check-label" for="${val.id + "ncd"}">
+                                            ${val.name}
+                                        </label>
+                                    </div>
+                                </li>`
+                    });
+                    $("#ncdList").append(list);
+                }
+            });
+        }
+        function getAllergies() {
+            return $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/DropDown/GetAllergies',
+                dataType: "json",
+                type: 'GET',
+                success: function (res) {
+                    $("#allergyList").empty();
+                    let list = ``
+                    $.each(res, function (key, val) {
+                        list += `<li>
+                                            <div class="form-check">
+                                                <input class="form-check-input allergyCheckbox" type="checkbox" value="" id="${val.id + "al"}" data-id="${val.id}">
+                                                <label class="form-check-label" for="${val.id + "al"}">
+                                                    ${val.name}
+                                                </label>
+                                            </div>
+                                        </li>`
+                    });
+                    $("#allergyList").append(list);
+                }
+            });
+        }
+        $(document).on("click", "#btnAdd", function(){
+            //$("#ncdListSelected").empty();
+            var isChecked = $('.ncdCheckbox:checked');
+            var list = ``
+            $.each(isChecked, function(key, val){
+                var name = $(this).parent().find("label").text();
+                var id = +$(this).attr("data-id");
+                list += `<li>
+                            <div class="form-check">
+                                    <input class="form-check-input ncdSelected" type="checkbox" value="" id="${id + "ncd"}" data-id="${id}">
+                                    <label class="form-check-label" for="${id + "ncd"}">
+                                    ${name}
+                                </label>
+                            </div>
+                        </li>`
+                $(val).parent().parent().remove();
+            })
+            $("#ncdListSelected").append(list);
+        })
+        $(document).on("click", "#btnRemove", function () {
+            //$("#ncdList").empty();
+            var isChecked = $('.ncdSelected:checked');
+            var list = ``
+            $.each(isChecked, function (key, val) {
+                var name = $(this).parent().find("label").text();
+                var id = +$(this).attr("data-id");
+                list += `<li>
+                            <div class="form-check">
+                                <input class="form-check-input ncdCheckbox" type="checkbox" value="" id="${id+"ncd"}" data-id="${id}">
+                                <label class="form-check-label" for="${id+"ncd"}">
+                                    ${name}
+                                </label>
+                            </div>
+                        </li>`
+                $(val).parent().parent().remove();
+            })
+            $("#ncdList").append(list);
+        })
+        $(document).on("click", "#btnAddAllergy", function () {
+            //$("#ncdListSelected").empty();
+            var isChecked = $('.allergyCheckbox:checked');
+            var list = ``
+            $.each(isChecked, function (key, val) {
+                var name = $(this).parent().find("label").text();
+                var id = +$(this).attr("data-id");
+                list += `<li>
+                    <div class="form-check">
+                        <input class="form-check-input allergySelected" type="checkbox" value="" id="${id+"al"}" data-id="${id}">
+                        <label class="form-check-label" for="${id+"al"}">
+                            ${name}
+                        </label>
+                    </div>
+                </li>`
+                $(val).parent().parent().remove();
+            })
+            $("#allergyListSelected").append(list);
+        })
+        $(document).on("click", "#btnRemoveAllergy", function () {
+            //$("#ncdList").empty();
+            var isChecked = $('.allergySelected:checked');
+            var list = ``
+            $.each(isChecked, function (key, val) {
+                var name = $(this).parent().find("label").text();
+                var id = +$(this).attr("data-id");
+                list += `<li>
+                    <div class="form-check">
+                        <input class="form-check-input allergyCheckbox" type="checkbox" value="" id="${id+"al"}" data-id="${id}">
+                        <label class="form-check-label" for="${id+"al"}">
+                            ${name}
+                        </label>
+                    </div>
+                </li>`
+                $(val).parent().parent().remove();
+            })
+            $("#allergyList").append(list);
+        })
+
+
+        $(document).on("click", "#savePatient", function () {
+            if ($("#patientForm").valid()){
+                $(this).prop("disabled", true);
+                var alIds = "";
+                var ncdIds = "";
+                var allergyChecked = $('.allergySelected');
+                if (allergyChecked.length == 0) {
+                    alert("alergies should be added");
+                    $("#savePatient").prop("disabled", false);
+                    return;
+                }
+                $.each(allergyChecked, function (key, val) {
+                    alIds += $(val).attr("data-id") + ",";
+                })
+                var ncdChecked = $('.ncdSelected');
+                $.each(ncdChecked, function (key, val) {
+                    ncdIds += $(val).attr("data-id") + ",";
+                })
+                var model = {
+                    name: $("#patientName").val(),
+                    diseaseId: +$("#diseasesId").val(),
+                    ncdIds: ncdIds,
+                    allergyIds: alIds,
+                    epilepsy: $("#epilepsy").val(),
+                }
+                $.ajax({
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    url: baseURL + '/api/Patient/CreatePatient',
+                    dataType: "json",
+                    type: 'POST',
+                    data: JSON.stringify(model),
+                    success: function (res) {
+                        if (res.type = "Success") {
+                            //$("#patientForm").reset();
+                            $("#patientName").val("");
+                            $("#diseasesId").val("").trigger("change");
+                            $("#epilepsy").val("").trigger("change");
+                            alert(res.message);
+                            $("#savePatient").prop("disabled", false);
+                            getPatient();
+
+                        }
+                        $("#savePatient").prop("disabled", false);
+                        getPatient();
+                    }
+                });
+            }
+            
+        })
+        function getPatient() {
+            return $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/Patient/GetPatient',
+                dataType: "json",
+                type: 'GET',
+                success: function (res) {
+                    $("#patientTable tbody").empty();
+                    let tr = ``
+                    $.each(res, function (key, val) {
+                        let ncd = ""
+                        $.each(val.ncds, function (k, v) {
+                            if (k == 0) {
+                                ncd += v.name;
+                            }else{
+                                ncd += ", " + v.name;
+                            }
+                            
+                        })
+                        let allergies = ""
+                        $.each(val.allergies, function (i, k) {
+                            if (i == 0) {
+                                allergies += k.name;
+                            } else {
+                                allergies += ", " + k.name;
+                            }
+                            
+                        })
+                        tr += `<tr>
+                                    <td>${key+1}</td>
+                                    <td>${val.name}</td>
+                                    <td>${val.diseaseName}</td>
+                                    <td>${val.epilepsy}</td>
+                                    <td>${ncd}</td>
+                                    <td>${allergies}</td>
+                                </tr>`
+                    });
+                    $("#patientTable tbody").append(tr);
+                }
+            });
+        }
+    </script>
+}

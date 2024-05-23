@@ -1,0 +1,49 @@
+﻿<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div calss="card-title">
+                <h5>Add Allergies</h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group my-3">
+                        <label for="allergies" class="col-sm-2 col-form-label">Name<sup style="color:red">*</sup></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="allergies" autocomplete="off" placeholder="" required />
+                        </div>
+                    </div>
+                </form>
+                <div class="col-md-12 d-flex justify-content-end">
+                    <button type="button" id="save" class="btn btn-success"><b>Save</b></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).on("click", "#save", function () {
+            var model = {
+                name: $("#allergies").val()
+            }
+            $("#save").prop("disabled", true);
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/DropDown/CreateAllergies',
+                dataType: "json",
+                type: 'POST',
+                data: JSON.stringify(model),
+                success: function (res) {
+                    if (res.type = "Success") {
+                        $("#allergies").val("");
+                        alert(res.message);
+                    }
+                    $("#save").prop("disabled", false);
+                }
+            });
+        });
+    </script>
+}
