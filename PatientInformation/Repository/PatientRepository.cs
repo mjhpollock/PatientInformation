@@ -14,7 +14,7 @@ namespace PatientInformation.Repository
             _db = db;
         }
         public async Task<VmResponseMessage> CreatePatient(VmPatient vm)
-        {
+        { 
             var response = new VmResponseMessage();
             var ncds = vm.NcdIds.Split(',').ToList();
             var allergies = vm.AllergyIds.Split(',').ToList();
@@ -109,6 +109,33 @@ namespace PatientInformation.Repository
                 list.Add( pat );
             }
             return list;
+        }
+        public async Task<VmResponseMessage> DeletePatient(int id)
+        {
+            var response = new VmResponseMessage();
+            var patient = await _db.Patient.FirstOrDefaultAsync(x => x.Id == id);
+            if (patient == null)
+            {
+                 _db.Remove(patient);
+                await _db.SaveChangesAsync();
+            }
+            var ncds = await _db.NcdDetails.Where(x=> x.PatientId == id).ToListAsync();
+            foreach (var ncd in ncds)
+            {
+                var nc = await _db.NcdDetails.FirstOrDefaultAsync(x=> x.Id == ncd.Id);
+                _db.Remove(nc);
+                await _db.SaveChangesAsync();
+            }
+            var allergies = await _db.AllergiesDetails.Where(x => x.PatientId == id).ToListAsync();
+            foreach (var al in allergies)
+            {
+                var allergy = await _db.NcdDetails.FirstOrDefaultAsync(x => x.Id == al.Id);
+                _db.Remove(allergy);
+                await _db.SaveChangesAsync();
+            }
+            response.Type = "Success";
+            response.Message = "Successfully Deleted Patient";
+            return response;
         }
     }
 }

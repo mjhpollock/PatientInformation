@@ -26,5 +26,11 @@ namespace PatientInformation.Api
             var list = await _patientRepo.GetPatient();
             return Ok(list);
         }
+        [HttpGet("DeletePatient")]
+        public async Task<ActionResult<VmResponseMessage>> DeletePatient(int id)
+        {
+            var response = await _patientRepo.DeletePatient(id);
+            return Ok(response);
+        }
     }
 }

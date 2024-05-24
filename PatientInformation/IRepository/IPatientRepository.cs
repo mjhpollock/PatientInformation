@@ -6,5 +6,6 @@ namespace PatientInformation.IRepository
     {
         Task<VmResponseMessage> CreatePatient(VmPatient vm);
         Task<List<VmPatient>> GetPatient();
+        Task<VmResponseMessage> DeletePatient(int id);
     }
 }

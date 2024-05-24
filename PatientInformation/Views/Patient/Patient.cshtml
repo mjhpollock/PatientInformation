@@ -107,6 +107,7 @@
                             <th>Epilepsy</th>
                             <th>NCDS</th>
                             <th>Allergies</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -367,11 +368,30 @@
                                     <td>${val.epilepsy}</td>
                                     <td>${ncd}</td>
                                     <td>${allergies}</td>
+                                    <td><button class="btn btn-primary edit" data-id="${val.id}">Edit</button> <button class="btn btn-danger delete" data-id="${val.id}">Delete</button></td>
                                 </tr>`
                     });
                     $("#patientTable tbody").append(tr);
                 }
             });
         }
+        $(document).on("click",".delete", function(){
+            var id = +$(this).attr("data-id");
+            return $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/Patient/DeletePatient?id=' + id,
+                dataType: "json",
+                type: 'GET',
+                success: function (res) {
+                    if(res.type == "Success"){
+                        alert(res.message)
+                        getPatient()
+                    }
+                }
+            })
+        })
     </script>
 }
