@@ -114,7 +114,7 @@ namespace PatientInformation.Repository
         {
             var response = new VmResponseMessage();
             var patient = await _db.Patient.FirstOrDefaultAsync(x => x.Id == id);
-            if (patient == null)
+            if (patient != null)
             {
                  _db.Remove(patient);
                 await _db.SaveChangesAsync();
