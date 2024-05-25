@@ -5,6 +5,7 @@
         <div class="card">
             <div class="card-body">
                 <form id="patientForm">
+                    <input type="hidden" id="patientId" />
                     <div class="form-group row my-3">
                         <label for="patientName" class="col-sm-2 col-form-label">Patient Name<sup style="color:red">*</sup></label>
                         <div class="col-sm-10">
@@ -140,7 +141,7 @@
                 type: 'GET',
                 success: function (res) {
                     $("#diseasesId").empty();
-                    let option = `<option value="">Select...</option>`
+                    let option = `<option value="0">Select...</option>`
                     $.each(res, function (key, val) {
                         option += `<option value="${val.id}">${val.name}</option>`
                     });
@@ -246,13 +247,13 @@
                 var name = $(this).parent().find("label").text();
                 var id = +$(this).attr("data-id");
                 list += `<li>
-                    <div class="form-check">
-                        <input class="form-check-input allergySelected" type="checkbox" value="" id="${id+"al"}" data-id="${id}">
-                        <label class="form-check-label" for="${id+"al"}">
-                            ${name}
-                        </label>
-                    </div>
-                </li>`
+                            <div class="form-check">
+                                <input class="form-check-input allergySelected" type="checkbox" value="" id="${id+"al"}" data-id="${id}">
+                                <label class="form-check-label" for="${id+"al"}">
+                                    ${name}
+                                </label>
+                            </div>
+                        </li>`
                 $(val).parent().parent().remove();
             })
             $("#allergyListSelected").append(list);
@@ -284,8 +285,18 @@
                 var alIds = "";
                 var ncdIds = "";
                 var allergyChecked = $('.allergySelected');
+                if ($("#diseasesId").val() == "0") {
+                    alert("disease should be added");
+                    $("#savePatient").prop("disabled", false);
+                    return;
+                }
                 if (allergyChecked.length == 0) {
                     alert("alergies should be added");
+                    $("#savePatient").prop("disabled", false);
+                    return;
+                }
+                if ($("#epilepsy").val() == "") {
+                    alert("epilepsy should be selected");
                     $("#savePatient").prop("disabled", false);
                     return;
                 }
@@ -303,28 +314,33 @@
                     allergyIds: alIds,
                     epilepsy: $("#epilepsy").val(),
                 }
+                let url = '/api/Patient/CreatePatient';
+                if ($("#savePatient").text() == "Update"){
+                    url = '/api/Patient/UpdatePatient';
+                    model.id = +$("#patientId").val();
+                }
                 $.ajax({
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    url: baseURL + '/api/Patient/CreatePatient',
+                    url: baseURL + url,
                     dataType: "json",
                     type: 'POST',
                     data: JSON.stringify(model),
                     success: function (res) {
                         if (res.type = "Success") {
-                            //$("#patientForm").reset();
-                            $("#patientName").val("");
-                            $("#diseasesId").val("").trigger("change");
-                            $("#epilepsy").val("").trigger("change");
+                           
                             alert(res.message);
                             $("#savePatient").prop("disabled", false);
+                            resetForm();
                             getPatient();
 
                         }
-                        $("#savePatient").prop("disabled", false);
                         getPatient();
+                    },
+                    error: function (xhr, err, status) {
+                        $("#savePatient").prop("disabled", false);
                     }
                 });
             }
@@ -389,9 +405,82 @@
                     if(res.type == "Success"){
                         alert(res.message)
                         getPatient()
+                    }else{
+                        alert(res.message)
+                        getPatient();
                     }
+                },
+                error: function(err, xhr, a){
+                    alert(res.message)
+                    getPatient();
                 }
             })
         })
+        $(document).on("click",".edit", function(){
+            var id = +$(this).attr("data-id");
+            return $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                url: baseURL + '/api/Patient/GetPatientById?id=' + id,
+                dataType: "json",
+                type: 'GET',
+                success: function (res) {
+                    $("#savePatient").text("Update");
+                    $("#patientId").val(res.id);
+                    $("#patientName").val(res.name);
+                    $("#diseasesId").val(res.diseaseId).trigger("change");
+                    $("#epilepsy").val(res.epilepsy).trigger("change");
+                    $.each(res.ncds, function (key, val) {
+                        var nc = $(".ncdCheckbox");
+                        $.each(nc, function (k, v) {
+                            let ncId = $(v).attr("data-id");
+                            if (ncId == val.ncdId) {
+                                $(v).parent().parent().remove();
+                                let ncdElement = `<li>
+                                                    <div class="form-check">
+                                                            <input class="form-check-input ncdSelected" type="checkbox" value="" id="${val.id + "ncd"}" data-id="${val.ncdId}">
+                                                            <label class="form-check-label" for="${val.id + "ncd"}">
+                                                            ${val.name}
+                                                        </label>
+                                                    </div>
+                                                </li>`
+                                $("#ncdListSelected").append(ncdElement);
+                            }
+                        })
+                    })
+                    $.each(res.allergies, function (key, val) {
+                        var al = $(".allergyCheckbox");
+                        $.each(al, function (k, v) {
+                            let ncId = $(v).attr("data-id");
+                            if (ncId == val.allergyId) {
+                                $(v).parent().parent().remove();
+                                let alElement = `<li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input allergySelected" type="checkbox" value="" id="${val.id + "al"}" data-id="${val.allergyId}">
+                                                        <label class="form-check-label" for="${val.id + "al"}">
+                                                            ${val.name}
+                                                        </label>
+                                                    </div>
+                                </li>`
+                                $("#allergyListSelected").append(alElement);
+                            }
+                        })
+                    })
+                }
+            });
+        })
+        function resetForm(){
+            $("#patientName").val("");
+            $("#diseasesId").val("0").trigger("change");
+            $("#epilepsy").val("").trigger("change");
+            $("#savePatient").text("Save");
+            $("#allergyListSelected").empty();
+            $("#ncdListSelected").empty();
+            getNcds();
+            getAllergies();
+
+        }
     </script>
 }

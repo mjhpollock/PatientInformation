@@ -23,11 +23,13 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int NcdId { get; set; }
     }
     public class VmAllergies
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int AllergyId { get; set; }
     }
 
 }

@@ -48,7 +48,7 @@ namespace PatientInformation.Api
         [HttpGet("GetDisease")]
         public async Task<ActionResult<List<VmDropDown>>> GetDisease()
         {
-            var res = await _drpRepo.GetNcds();
+            var res = await _drpRepo.GetDisease();
             return Ok(res);
         }
     }
